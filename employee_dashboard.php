@@ -263,7 +263,7 @@ $conn->close();
                                     <option value="Cancelado">Cancelado</option>
                                 </select>
                             </div>
-                            <button type="button" id="deleteEventForm" class="btn btn-danger">Eliminar Evento</button>
+                            <button type="button" id="deleteEventButton" class="btn btn-danger">Eliminar Evento</button>
                             <button type="submit" class="btn btn-primary">Actualizar Evento</button>
                         </form>
                     </div>
@@ -278,7 +278,7 @@ $conn->close();
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-    <script src="./Scripts/Alerts.js"></script>
+<!--     <script src="./Scripts/Alerts.js"></script> -->
 
 </body>
 

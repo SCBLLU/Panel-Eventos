@@ -66,12 +66,13 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    console.log('Evento actualizado:', data);
+                    showAlert(true, 'Evento actualizado correctamente.');
                 } else {
-                    console.error('Error al actualizar el evento:', data.message);
+                    showAlert(false, 'Error al actualizar el evento: ' + data.message);
                 }
             })
             .catch(error => {
+                showAlert(false, 'Error al actualizar el evento.');
                 console.error('Error al actualizar el evento:', error);
             });
     }
@@ -96,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function () {
         modal.show();
     }
 
-    document.getElementById('deleteEventForm').addEventListener('click', function () {
+    document.getElementById('deleteEventButton').addEventListener('click', function () {
         var eventId = document.getElementById('eventoId').value;
         fetch('./employee_dashboard.php', {
             method: 'POST',
@@ -125,6 +126,32 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     });
 
+    document.getElementById('createEventForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        formData.append('action', 'crear');
+
+        fetch('./employee_dashboard.php', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(true, 'Evento creado exitosamente.');
+                    calendar.refetchEvents();
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('crearEventoModal'));
+                    modal.hide();
+                    this.reset();
+                } else {
+                    showAlert(false, 'Error al crear el evento.');
+                }
+            })
+            .catch(error => {
+                showAlert(false, 'Error de red al crear el evento.');
+                console.error('Error al crear el evento:', error);
+            });
+    });
 
     function formatDate(dateString) {
         return new Date(dateString).toISOString().split('T')[0];
@@ -135,4 +162,12 @@ document.addEventListener('DOMContentLoaded', function () {
         return d.toTimeString().split(' ')[0].split(':').slice(0, 2).join(':');
     }
 
+    function showAlert(success, message) {
+        var alertContainer = document.getElementById('alertContainer');
+        alertContainer.innerHTML = '';
+        var alert = document.createElement('div');
+        alert.className = 'alert ' + (success ? 'alert-success' : 'alert-danger');
+        alert.textContent = message;
+        alertContainer.appendChild(alert);
+    }
 });
