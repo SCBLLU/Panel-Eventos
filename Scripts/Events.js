@@ -162,12 +162,20 @@ document.addEventListener('DOMContentLoaded', function () {
         return d.toTimeString().split(' ')[0].split(':').slice(0, 2).join(':');
     }
 
-    function showAlert(success, message) {
-        var alertContainer = document.getElementById('alertContainer');
-        alertContainer.innerHTML = '';
-        var alert = document.createElement('div');
-        alert.className = 'alert ' + (success ? 'alert-success' : 'alert-danger');
-        alert.textContent = message;
-        alertContainer.appendChild(alert);
+    function showAlert(success, message, duration = 10000) {
+        const alertContainer = document.getElementById('alertContainer');
+        if (alertContainer) {
+            alertContainer.innerHTML = `
+                <div class="alert ${success ? 'alert-success' : 'alert-danger'} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+
+            // Eliminar la alerta después de la duración especificada
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, duration);
+        }
     }
 });
