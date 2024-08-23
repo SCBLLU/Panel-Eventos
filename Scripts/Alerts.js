@@ -13,9 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (deleteEventForm) {
         deleteEventForm.addEventListener('click', function (e) {
             e.preventDefault();
-            // Aquí asumo que el formulario de eliminación tiene ID 'deleteEventForm'
-            const form = document.getElementById('deleteEventForm');
-            submitForm(form, 'eliminarEventoModal');
+            submitForm(this, 'eliminarEventoModal');
         });
     }
 
@@ -36,15 +34,23 @@ document.addEventListener('DOMContentLoaded', function () {
             method: 'POST',
             body: formData
         })
-            .then(response => response.json())
+            .then(response => {
+                if (response.headers.get('content-type')?.includes('application/json')) {
+                    return response.json();
+                } else {
+                    throw new Error('Respuesta no es JSON');
+                }
+            })
             .then(data => {
-                showAlert(data.success, data.message);
                 if (data.success) {
+                    showAlert(true, data.message);
                     form.reset();
                     const modal = bootstrap.Modal.getInstance(document.getElementById(modalId));
                     if (modal) {
                         modal.hide();
                     }
+                } else {
+                    showAlert(false, data.message);
                 }
             })
             .catch(error => {
@@ -52,16 +58,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error('Error al procesar el formulario:', error);
             });
     }
-
-    function showAlert(success, message) {
-        const alertContainer = document.getElementById('alertContainer');
-        if (alertContainer) {
-            alertContainer.innerHTML = `
-                <div class="alert ${success ? 'alert-success' : 'alert-danger'} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-        }
-    }
 });
+
+function showAlert(success, message) {
+    const alertContainer = document.getElementById('alertContainer');
+    if (alertContainer) {
+        alertContainer.innerHTML = `
+            <div class="alert ${success ? 'alert-success' : 'alert-danger'} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+}
