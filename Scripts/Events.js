@@ -26,13 +26,36 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         eventClick: function (info) {
             showEventModal(info.event);
+        },
+        dateClick: function (info) {
+            var modal = new bootstrap.Modal(document.getElementById('crearEventoModal'));
+
+            var fechaInicioInput = document.getElementById('fecha_inicio');
+            var fechaFinInput = document.getElementById('fecha_fin');
+            var horaInicioInput = document.getElementById('hora_inicio');
+            var horaFinInput = document.getElementById('hora_fin');
+
+            if (fechaInicioInput) {
+                fechaInicioInput.value = info.dateStr;
+            }
+            if (fechaFinInput) {
+                fechaFinInput.value = info.dateStr;
+            }
+            if (horaInicioInput) {
+                horaInicioInput.value = '07:00';
+            }
+            if (horaFinInput) {
+                horaFinInput.value = '12:00';
+            }
+
+            modal.show();
         }
     });
 
     calendar.render();
 
     function updateEvent(event) {
-        // Verifica los datos antes de enviarlos
+        // Verifica los datos antes de enviarlos al servidor
         console.log({
             id: event.id,
             nombre: event.title,
@@ -58,15 +81,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 hora_inicio: event.startStr.split('T')[1].split('Z')[0],
                 fecha_fin: event.endStr.split('T')[0],
                 hora_fin: event.endStr.split('T')[1].split('Z')[0],
-                lugar: event.extendedProps.lugar,
-                descripcion: event.extendedProps.descripcion,
-                estado: event.extendedProps.estado
+                lugar: event.extendedProps.lugar || '',
+                descripcion: event.extendedProps.descripcion || '',
+                estado: event.extendedProps.estado || ''
             })
         })
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
                     showAlert(true, 'Evento actualizado correctamente.');
+                    calendar.refetchEvents();
                 } else {
                     showAlert(false, 'Error al actualizar el evento: ' + data.message);
                 }
@@ -80,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     function showEventModal(event) {
         var modal = new bootstrap.Modal(document.getElementById('eventoModal'));
         document.getElementById('eventoId').value = event.id;
-        document.getElementById('editNombre').value = event.title;
+        document.getElementById('editNombre').value = event.title || '';
 
         let startDate = new Date(event.startStr);
         let endDate = new Date(event.endStr);
@@ -90,12 +114,38 @@ document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('editFechaFin').value = endDate.toISOString().split('T')[0];
         document.getElementById('editHoraFin').value = formatTime(endDate);
 
-        document.getElementById('editLugar').value = event.extendedProps.lugar;
-        document.getElementById('editDescripcion').value = event.extendedProps.descripcion;
-        document.getElementById('editEstado').value = event.extendedProps.estado;
+        document.getElementById('editLugar').value = event.extendedProps.lugar || '';
+        document.getElementById('editDescripcion').value = event.extendedProps.descripcion || '';
+        document.getElementById('editEstado').value = event.extendedProps.estado || '';
 
         modal.show();
     }
+
+    document.getElementById('updateEventForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        formData.append('action', 'actualizar');
+
+        fetch('./employee_dashboard.php', {
+            method: 'POST',
+            body: new URLSearchParams(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert(true, 'Evento actualizado correctamente.');
+                    calendar.refetchEvents();
+                    var modal = bootstrap.Modal.getInstance(document.getElementById('eventoModal'));
+                    modal.hide();
+                } else {
+                    showAlert(false, 'Error al actualizar el evento.');
+                }
+            })
+            .catch(error => {
+                showAlert(false, 'Error de red al actualizar el evento.');
+                console.error('Error al actualizar el evento:', error);
+            });
+    });
 
     document.getElementById('deleteEventButton').addEventListener('click', function () {
         var eventId = document.getElementById('eventoId').value;
@@ -172,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             `;
 
-            // Eliminar la alerta después de la duración especificada
             setTimeout(() => {
                 alertContainer.innerHTML = '';
             }, duration);

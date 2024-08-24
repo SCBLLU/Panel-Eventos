@@ -24,7 +24,12 @@ class EmployeeDashboard
         $sql = "INSERT INTO eventos (nombre, fecha_inicio, hora_inicio, fecha_fin, hora_fin, lugar, descripcion, estado) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         if ($stmt = $this->conn->prepare($sql)) {
             $stmt->bind_param('ssssssss', $nombre, $fecha_inicio, $hora_inicio, $fecha_fin, $hora_fin, $lugar, $descripcion, $estado);
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                error_log('Error en ejecución: ' . $stmt->error);
+                return false;
+            }
         } else {
             error_log('Error en prepare: ' . $this->conn->error);
             return false;
@@ -37,7 +42,12 @@ class EmployeeDashboard
         $sql = "DELETE FROM eventos WHERE id = ?";
         if ($stmt = $this->conn->prepare($sql)) {
             $stmt->bind_param('i', $id);
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                error_log('Error en ejecución: ' . $stmt->error);
+                return false;
+            }
         } else {
             error_log('Error en prepare: ' . $this->conn->error);
             return false;
@@ -50,7 +60,12 @@ class EmployeeDashboard
         $sql = "UPDATE eventos SET nombre = ?, fecha_inicio = ?, hora_inicio = ?, fecha_fin = ?, hora_fin = ?, lugar = ?, descripcion = ?, estado = ? WHERE id = ?";
         if ($stmt = $this->conn->prepare($sql)) {
             $stmt->bind_param('ssssssssi', $nombre, $fecha_inicio, $hora_inicio, $fecha_fin, $hora_fin, $lugar, $descripcion, $estado, $id);
-            return $stmt->execute();
+            if ($stmt->execute()) {
+                return true;
+            } else {
+                error_log('Error en ejecución: ' . $stmt->error);
+                return false;
+            }
         } else {
             error_log('Error en prepare: ' . $this->conn->error);
             return false;
@@ -76,43 +91,49 @@ $employeeDashboard = new EmployeeDashboard($conn);
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
     $response = array('success' => false, 'message' => 'Acción no reconocida.');
 
-    if ($_POST['action'] == 'crear') {
-        $nombre = $_POST['nombre'];
-        $fecha_inicio = $_POST['fecha_inicio'];
-        $hora_inicio = $_POST['hora_inicio'];
-        $fecha_fin = $_POST['fecha_fin'];
-        $hora_fin = $_POST['hora_fin'];
-        $lugar = $_POST['lugar'];
-        $descripcion = $_POST['descripcion'];
+    switch ($_POST['action']) {
+        case 'crear':
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
+            $fecha_inicio = filter_input(INPUT_POST, 'fecha_inicio', FILTER_SANITIZE_STRING);
+            $hora_inicio = filter_input(INPUT_POST, 'hora_inicio', FILTER_SANITIZE_STRING);
+            $fecha_fin = filter_input(INPUT_POST, 'fecha_fin', FILTER_SANITIZE_STRING);
+            $hora_fin = filter_input(INPUT_POST, 'hora_fin', FILTER_SANITIZE_STRING);
+            $lugar = filter_input(INPUT_POST, 'lugar', FILTER_SANITIZE_STRING);
+            $descripcion = filter_input(INPUT_POST, 'descripcion', FILTER_SANITIZE_STRING);
 
-        if ($employeeDashboard->crearEvento($nombre, $fecha_inicio, $hora_inicio, $fecha_fin, $hora_fin, $lugar, $descripcion)) {
-            $response = array('success' => true, 'message' => 'Evento creado exitosamente.');
-        } else {
-            $response = array('success' => false, 'message' => 'Error al crear el evento.');
-        }
-    } elseif ($_POST['action'] == 'eliminar') {
-        $id = $_POST['id'];
-        if (filter_var($id, FILTER_VALIDATE_INT) && $employeeDashboard->eliminarEvento($id)) {
-            $response = array('success' => true, 'message' => 'Evento eliminado exitosamente.');
-        } else {
-            $response = array('success' => false, 'message' => 'Error al eliminar el evento.');
-        }
-    } elseif ($_POST['action'] == 'actualizar') {
-        $id = $_POST['id'];
-        $nombre = $_POST['nombre'];
-        $fecha_inicio = $_POST['fecha_inicio'];
-        $hora_inicio = $_POST['hora_inicio'];
-        $fecha_fin = $_POST['fecha_fin'];
-        $hora_fin = $_POST['hora_fin'];
-        $lugar = $_POST['lugar'];
-        $descripcion = $_POST['descripcion'];
-        $estado = $_POST['estado'];
+            if ($employeeDashboard->crearEvento($nombre, $fecha_inicio, $hora_inicio, $fecha_fin, $hora_fin, $lugar, $descripcion)) {
+                $response = array('success' => true, 'message' => 'Evento creado exitosamente.');
+            } else {
+                $response = array('success' => false, 'message' => 'Error al crear el evento.');
+            }
+            break;
 
-        if (filter_var($id, FILTER_VALIDATE_INT) && $employeeDashboard->actualizarEvento($id, $nombre, $fecha_inicio, $hora_inicio, $fecha_fin, $hora_fin, $lugar, $descripcion, $estado)) {
-            $response = array('success' => true, 'message' => 'Evento actualizado exitosamente.');
-        } else {
-            $response = array('success' => false, 'message' => 'Error al actualizar el evento.');
-        }
+        case 'eliminar':
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            if ($id && $employeeDashboard->eliminarEvento($id)) {
+                $response = array('success' => true, 'message' => 'Evento eliminado exitosamente.');
+            } else {
+                $response = array('success' => false, 'message' => 'Error al eliminar el evento.');
+            }
+            break;
+
+        case 'actualizar':
+            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
+            $nombre = filter_input(INPUT_POST, 'nombre', FILTER_SANITIZE_STRING);
+            $fecha_inicio = filter_input(INPUT_POST, 'fecha_inicio', FILTER_SANITIZE_STRING);
+            $hora_inicio = filter_input(INPUT_POST, 'hora_inicio', FILTER_SANITIZE_STRING);
+            $fecha_fin = filter_input(INPUT_POST, 'fecha_fin', FILTER_SANITIZE_STRING);
+            $hora_fin = filter_input(INPUT_POST, 'hora_fin', FILTER_SANITIZE_STRING);
+            $lugar = filter_input(INPUT_POST, 'lugar', FILTER_SANITIZE_STRING);
+            $descripcion = filter_input(INPUT_POST, 'descripcion', FILTER_SANITIZE_STRING);
+            $estado = filter_input(INPUT_POST, 'estado', FILTER_SANITIZE_STRING);
+
+            if ($id && $employeeDashboard->actualizarEvento($id, $nombre, $fecha_inicio, $hora_inicio, $fecha_fin, $hora_fin, $lugar, $descripcion, $estado)) {
+                $response = array('success' => true, 'message' => 'Evento actualizado exitosamente.');
+            } else {
+                $response = array('success' => false, 'message' => 'Error al actualizar el evento.');
+            }
+            break;
     }
 
     echo json_encode($response);
@@ -278,7 +299,6 @@ $conn->close();
 
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<!--     <script src="./Scripts/Alerts.js"></script> -->
 
 </body>
 
