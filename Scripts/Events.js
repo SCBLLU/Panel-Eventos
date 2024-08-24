@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateEvent(event) {
         // Verifica los datos antes de enviarlos al servidor
-        console.log({
+        console.log('Actualizando evento con los siguientes datos:', {
             id: event.id,
             nombre: event.title,
             fecha_inicio: event.startStr.split('T')[0],
@@ -126,6 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
         var formData = new FormData(this);
         formData.append('action', 'actualizar');
 
+        console.log('Enviando datos para actualizar el evento:', Object.fromEntries(formData.entries()));
+
         fetch('./employee_dashboard.php', {
             method: 'POST',
             body: new URLSearchParams(formData)
@@ -148,12 +150,10 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('deleteEventButton').addEventListener('click', function () {
-        // Verifica los datos antes de enviarlos al servidor
-        console.log({
-            id: eventId
-        });
-
         var eventId = document.getElementById('eventoId').value;
+
+        console.log('Enviando solicitud para eliminar el evento con ID:', eventId);
+
         fetch('./employee_dashboard.php', {
             method: 'POST',
             headers: {
@@ -182,14 +182,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('createEventForm').addEventListener('submit', function (event) {
-        // Verifica los datos antes de enviarlos al servidor
-        console.log({
-            id: event.id,
-        });
-
         event.preventDefault();
         var formData = new FormData(this);
         formData.append('action', 'crear');
+
+        console.log('Enviando datos para crear un nuevo evento:', Object.fromEntries(formData.entries()));
 
         fetch('./employee_dashboard.php', {
             method: 'POST',
