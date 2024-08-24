@@ -148,6 +148,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('deleteEventButton').addEventListener('click', function () {
+        // Verifica los datos antes de enviarlos al servidor
+        console.log({
+            id: eventId
+        });
+
         var eventId = document.getElementById('eventoId').value;
         fetch('./employee_dashboard.php', {
             method: 'POST',
@@ -177,6 +182,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.getElementById('createEventForm').addEventListener('submit', function (event) {
+        // Verifica los datos antes de enviarlos al servidor
+        console.log({
+            id: event.id,
+        });
+
         event.preventDefault();
         var formData = new FormData(this);
         formData.append('action', 'crear');
