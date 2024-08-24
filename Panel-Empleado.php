@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!isset($_SESSION['nivel']) || $_SESSION['nivel'] != 'empleado') {
-    header("Location: login.php");
+    header("Location: index.php");
     exit();
 }
 

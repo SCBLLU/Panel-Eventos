@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
         editable: true,
         selectable: true,
         events: function (fetchInfo, successCallback, failureCallback) {
-            fetch('./employee_dashboard.php?action=getEventos')
+            fetch('./Panel-Empleado.php?action=getEventos')
                 .then(response => response.json())
                 .then(data => successCallback(data))
                 .catch(error => {
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function () {
             estado: event.extendedProps.estado
         });
 
-        fetch('./employee_dashboard.php', {
+        fetch('./Panel-Empleado.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -128,7 +128,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('Enviando datos para actualizar el evento:', Object.fromEntries(formData.entries()));
 
-        fetch('./employee_dashboard.php', {
+        fetch('./Panel-Empleado.php', {
             method: 'POST',
             body: new URLSearchParams(formData)
         })
@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('Enviando solicitud para eliminar el evento con ID:', eventId);
 
-        fetch('./employee_dashboard.php', {
+        fetch('./Panel-Empleado.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
@@ -188,7 +188,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('Enviando datos para crear un nuevo evento:', Object.fromEntries(formData.entries()));
 
-        fetch('./employee_dashboard.php', {
+        fetch('./Panel-Empleado.php', {
             method: 'POST',
             body: new URLSearchParams(formData)
         })

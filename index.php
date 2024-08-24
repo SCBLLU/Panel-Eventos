@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($usuario['rol'] == 'administrador') {
                 header("Location: admin_dashboard.php");
             } else {
-                header("Location: employee_dashboard.php");
+                header("Location: Panel-Empleado.php");
             }
             exit();
         } else {
