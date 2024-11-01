@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $_SESSION['nivel'] = $usuario['rol'];
 
             if ($usuario['rol'] == 'administrador') {
-                header("Location: admin_dashboard.php");
+                header("Location: Panel-Administrador.php");
             } else {
                 header("Location: Panel-Empleado.php");
             }
